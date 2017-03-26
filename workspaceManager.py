@@ -14,9 +14,6 @@ def readFile():
 	
 	inputfile.close()
 
-	# print(workspaces)
-
-	# listWorkspaces(workspaces)
 	return workspaces
 
 
@@ -35,8 +32,10 @@ def addApplicationToWorkspace(workspaces, workspaceName, newApplicationName):
 	if workspaceName not in workspaces:
 		print('Error: this workspace does not exist')
 		return
-	# newApplicationName = input('Enter the name of the application you would like to add: ')
-	workspaces[workspaceName].append(newApplicationName)
+	if newApplicationName in workspaces[workspaceName]:
+		print('Error: this application is already in this workspace')
+	else:
+		workspaces[workspaceName].append(newApplicationName)
 
 # takes in workspaces and saves it into a file in the correct format
 def saveFile(workspaces):
@@ -45,7 +44,6 @@ def saveFile(workspaces):
 	for workspace in workspaces:
 		for application in workspaces[workspace]:
 			fileString += application + '\n'
-			# print(application)
 		fileString += '\\ ' + workspace + '\n'
 	outputfile.write(fileString)
 	outputfile.close()
@@ -135,6 +133,7 @@ def main():
 
 	elif command == 'list':
 		listWorkspaces(workspaces)
+		return
 
 	elif command == 'remove':
 		applicationName = ''
@@ -149,7 +148,7 @@ def main():
 
 	else:
 		openWorkspace(workspaces, argv[1])
-	print(workspaces)
+	listWorkspaces(workspaces)
 	saveFile(workspaces)
 
 

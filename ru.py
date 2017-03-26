@@ -16,27 +16,98 @@ def readFile():
     inputfile.close()
     return workspaces
 
+def verifyApplication(applicationName):
+    applicationNames = open('applicationNames.txt', 'r')
+    for name in applicationNames:
+        if applicationName.strip().lower() == name.strip().lower():
+            return True
+    return False
 
-# takes an array of menu items corresponding to workspace names
-# sets callback functions for each item
+class WorkspaceManager(rumps.App):
 
-def updateOpenListeners(menuItems):
-    for item in menuItems:
-        function = createOpenCallback(item[1].title)
-        #print(function)
-        item[1].set_callback(function)
+    def updateOpenListeners(self, menuItems):
+        for item in menuItems: 
+            item[1].set_callback(self.createCallback('', item[1].title))
+
+    def updateRemoveListeners(self, menu):
+        for item in menu[1].items():
+            item[1].set_callback(self.createCallback('remove', menu[1].title + ' ' + item[1].title))
+
+    def updateAddListeners(self, menu):
+        for item in menu:
+            item[1].set_callback(self.createAddCallback(item[1].title))
 
 
-def createOpenCallback(workspaceName):
-    def callback():
-        os.system('python3 workspaceManager.py open ' + workspaceName)
-    return callback
+
+    def createCallback(self, workspaceCommand, workspaceArgs):
+        mainApplication = self;
+        def callback(self):
+            os.system('python3 workspaceManager.py ' + workspaceCommand + ' ' + workspaceArgs)
+            mainApplication.update()
+        return callback
 
 
-class AwesomeStatusBarApp(rumps.App):
+    def createAddCallback(self, workspaceName):
+        myApplication = self
+        def myCallback(self):
+            myWindow = rumps.Window("Hello there!", "Add an application", "application name", cancel=True, dimensions=(320, 25))
+            response = myWindow.run()
+            os.system('open -a python')
+            invalidApplicationName = True
+            while invalidApplicationName:
+                if response.clicked:
+                    #do stuff for clicked
+                    invalidApplicationName = not verifyApplication(response.text.strip().lower())
+                    if not invalidApplicationName:
+                        os.system('python3 workspaceManager.py ' + 'add' + ' ' + workspaceName + ' ' + response.text.strip().lower())
+                        myApplication.update()
+                        break
+                    else:
+                        myWindow.message = "Invalid application name -- try again"
+                        response = myWindow.run()
+                else:
+                    break
+        return myCallback
+
+    def createAddWorkspaceCallback(self, workspaceNames):
+        myApplication = self
+        def myCallback(self):
+            myWindow = rumps.Window("Hello there!", "Add a workspace", "workspace name", cancel=True, dimensions=(320, 25))
+            response = myWindow.run()
+            os.system('open -a python')
+            invalidWorkspaceName = True
+            while invalidWorkspaceName:
+                myWindow.message = "Add a workspace"
+                if response.clicked:
+                    #do stuff for clicked
+                    invalidWorkspaceName = response.text.strip().lower() in workspaceNames or ' ' in response.text.strip()
+                    if not invalidWorkspaceName:
+                        os.system('python3 workspaceManager.py ' + 'create' + ' ' + response.text.strip().lower())
+                        myApplication.update()
+                        break
+                    elif ' ' in response.text.strip():
+                        myWindow.message = "Workspace names may only be one word long"
+                        response = myWindow.run()
+                    else:
+                        myWindow.message = "Invalid workspace name -- try again"
+                        response = myWindow.run()
+                else:
+                    break
+        return myCallback
+
+    def update(self):
+        self.updateMenu()
+        self.updateOpenListeners(self.menu["Open Workspace"].items())
+        for it in self.menu["Remove Application"].items():
+            self.updateRemoveListeners(it)
+        self.updateAddListeners(self.menu["Add Application"].items())
+
     def __init__(self):
+        super(WorkspaceManager, self).__init__("Workspace Manager", quit_button = None)
+        self.update()
 
-        super(AwesomeStatusBarApp, self).__init__("Awesome App")
+
+    def updateMenu(self):
         workspaces = readFile()
         workspaceNames = []
         for workspace in workspaces:
@@ -50,30 +121,15 @@ class AwesomeStatusBarApp(rumps.App):
                 arrayOfApps.append(app)
             a.append(arrayOfApps)
             applications.append(a)
-        #print(applications)
-        self.menu = [["Open", workspaceNames], ["Add", workspaceNames], ["Remove", applications]]
-        print(self.menu["Open"].items())
-        updateOpenListeners(self.menu["Open"].items())
+        self.menu.clear()
+        self.menu = ["Add Workspace", ["Open Workspace", workspaceNames], ["Add Application", workspaceNames], \
+                     ["Remove Application", applications],  "Quit"]
+        def quit(self):
+            rumps.quit_application()
+        self.menu["Quit"].set_callback(quit)
+        self.menu["Add Workspace"].set_callback(self.createAddWorkspaceCallback(workspaceNames))
 
-    # @rumps.clicked("Say hi")
-    # def sayhi(self, _):
-    #     rumps.notification("Awesome title", "amazing subtitle", "hi!!1")
-
-    colors = ["red", "green", "blue"]
-
-    for color in colors:
-        @rumps.clicked(color)
-        def sayColor(self, _):
-            rumps.notification(color)
-
-    # for workspace in workspaces:
-    #     for app in workspaces[workspace]:
-    #         menuitem.set_callback(os.system())
-
-    # @rumps.clicked(workspaceNames[0])
-    # def sayhi(self, _):
-    #     rumps.notification("This worked")
 
 if __name__ == "__main__":
-    AwesomeStatusBarApp().run()
+    WorkspaceManager().run()
 
