@@ -50,7 +50,7 @@ class WorkspaceManager(rumps.App):
     def createAddCallback(self, workspaceName):
         myApplication = self
         def myCallback(self):
-            myWindow = rumps.Window("Hello there!", "Add an application", "application name", cancel=True, dimensions=(320, 25))
+            myWindow = rumps.Window("", "Add an application", "application name", cancel=True, dimensions=(320, 25))
             response = myWindow.run()
             os.system('open -a python')
             invalidApplicationName = True
@@ -72,7 +72,7 @@ class WorkspaceManager(rumps.App):
     def createAddWorkspaceCallback(self, workspaceNames):
         myApplication = self
         def myCallback(self):
-            myWindow = rumps.Window("Hello there!", "Add a workspace", "workspace name", cancel=True, dimensions=(320, 25))
+            myWindow = rumps.Window("", "Add a workspace", "workspace name", cancel=True, dimensions=(320, 25))
             response = myWindow.run()
             os.system('open -a python')
             invalidWorkspaceName = True
