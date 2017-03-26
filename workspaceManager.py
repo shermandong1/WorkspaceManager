@@ -53,7 +53,8 @@ def openWorkspace(workspaces, workspaceName):
 		print('invalid request')
 		return
 	for applicationName in workspaces[workspaceName]:
-		os.system('open -a ' + applicationName)
+		print("Application Name: " + applicationName)
+		os.system('open -a \'' + applicationName + '\'')
 
 def removeApplicationFromWorkspace(workspaces, workspaceName, applicationName):
 	if workspaceName not in workspaces:
@@ -148,7 +149,7 @@ def main():
 
 	else:
 		openWorkspace(workspaces, argv[1])
-	listWorkspaces(workspaces)
+	# listWorkspaces(workspaces)
 	saveFile(workspaces)
 
 
