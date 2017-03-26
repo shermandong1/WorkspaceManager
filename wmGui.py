@@ -103,7 +103,7 @@ class WorkspaceManager(rumps.App):
         self.updateAddListeners(self.menu["Add Application"].items())
 
     def __init__(self):
-        super(WorkspaceManager, self).__init__("Workspace Manager", quit_button = None)
+        super(WorkspaceManager, self).__init__("Workspace Manager", quit_button = None, icon = 'icon.png')
         self.update()
 
 
